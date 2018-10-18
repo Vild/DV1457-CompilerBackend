@@ -71,7 +71,7 @@ init:
 
 test:
 	./check.sh a . a
-	./check.sh c . c
+	@#./check.sh c . c
 
 test-lib: $(BIN)libmath-implementation-test
 	@$(call INFO,"::","Testing the libmath.a implementation...");
@@ -120,7 +120,7 @@ $(BIN)calc3%: $(COMMON_SRC) $(OBJ)calc3%.o
 	@$(CC) $^ -o $@ $(LFLAGS) $(ERRORS)
 	@$(call END,$(BLUE),"  -\> LD","$@ \<-- $^")
 
-$(BIN_LIB)libmath.a: $(OBJ)lib/fact.o $(OBJ)lib/gdc.o $(OBJ)lib/lntwo.o
+$(BIN_LIB)libmath.a: $(OBJ)lib/fact.o $(OBJ)lib/gcd.o $(OBJ)lib/lntwo.o
 	@$(call BEG,$(BLUE),"  -\> AR","$@ \<-- $^")
 	@mkdir -p $(dir $@)
 	@$(AR) $(ARFLAGS) $@ $^ $(ERRORS)

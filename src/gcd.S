@@ -1,9 +1,9 @@
 .code64
 .text
 
-.global gdc
-.type gdc, %function
-gdc: # %rdi = factor
+.global gcd
+.type gcd, %function
+gcd: # %rdi = factor
 	push %rbp
 	mov %rsp, %rbp
 
@@ -11,4 +11,4 @@ gdc: # %rdi = factor
 
 	pop %rbp
 	retq
-.size gdc, .-gdc
+.size gcd, .-gcd
