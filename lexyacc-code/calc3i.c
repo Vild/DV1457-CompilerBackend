@@ -1,29 +1,54 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "calc3.h"
 #include "y.tab.h"
 
 static int lbl;
 
-//#define NDEBUG
+#define NDEBUGd
 
 #ifndef NDEBUG
-#define _(...) fprintf(stdout, __VA_ARGS__)
+#define _(fmt, ...) do { fflush(stdout); fprintf(stderr, "\x1b[1;33m" fmt "\x1b[0m", ##__VA_ARGS__); } while (0)
 #else
 #define _(...)
 #endif
+#define _e(fmt, ...) do { fflush(stdout); fprintf(stderr, "\x1b[1;31m" fmt "\x1b[0m", ##__VA_ARGS__); } while (0)
 
 
 static int pushCounter = 0;
 
-#define PUSHCOUNTER_ADD() do { pushCounter++;  _("// pushCounter: %d\n", pushCounter); } while (0)
-#define PUSHCOUNTER_SUB() do { pushCounter--;  _("// pushCounter: %d\n", pushCounter); } while (0)
-#define PUSHCOUNTER_EXPECT(n) do { if (n != pushCounter) _("\t\t//PROBLEM HERE %d != %d\n", n, pushCounter); } while (0)
+#define PUSHCOUNTER_ADD() do { pushCounter++;  _("\t\t\t\t// pushCounter: %d\n", pushCounter); } while (0)
+#define PUSHCOUNTER_SUB() do { pushCounter--;						\
+		if (pushCounter < 0)																\
+			_e("\t\t\t\t// pushCounter: %d\n", pushCounter);	\
+		else																								\
+			_("\t\t\t\t// pushCounter: %d\n", pushCounter);		\
+	} while (0)
+#define PUSHCOUNTER_EXPECT(n) do {												\
+		if (n != pushCounter) {																\
+			_("\t\t//PROBLEM HERE %d != %d\n", n, pushCounter);	\
+			exit(-1);																						\
+		}																											\
+	} while (0)
 
 int ex(nodeType *p) {
 	int lbl1 = 0, lbl2 = 0;
 
+	static int inBlock = 0;
+	static int blockCount = 0;
+	static int subBlockCount = 0;
+
 	if (!p)
 		return 0;
+
+	int rootBlock = !inBlock;
+	if (rootBlock) {
+		subBlockCount = 0;
+		_("\n// ======== Block %d ========\n", blockCount++);
+		inBlock = 1;
+	} else
+		_("\n    // ======== Sub-block %d.%d ========\n", blockCount, subBlockCount++);
+
 	switch(p->type) {
 	case typeCon:
 		_("\t\t\t\t// typeCon\n");
@@ -32,7 +57,7 @@ int ex(nodeType *p) {
 		break;
 	case typeId:
 		_("\t\t\t\t// typeId\n");
-		printf("\tpushq\t%c\n", p->id.i + 'a');
+		printf("\tpushq\t%c\n", p->id.i + 'A');
 		PUSHCOUNTER_ADD();
 		break;
 	case typeOpr:
@@ -42,9 +67,9 @@ int ex(nodeType *p) {
 			printf("L%03d:\n", lbl1 = lbl++);
 
 			int before = pushCounter;
-			_("\t\t\t\t// <OP0>\n");
+			_("\t// <CONDITION>\n");
 			ex(p->opr.op[0]);
-			_("\t\t\t\t// </OP0>\n");
+			_("\t// </CONDITION>\n");
 			PUSHCOUNTER_EXPECT(before + 1);
 
 			printf("\tpop\t%rax\n");
@@ -53,19 +78,19 @@ int ex(nodeType *p) {
 			printf("\tjz\tL%03d\n", lbl2 = lbl++);
 
 			before = pushCounter;
-			_("\t\t\t\t// <OP1>\n");
-				ex(p->opr.op[1]);
-				_("\t\t\t\t// </OP1>\n");
-				PUSHCOUNTER_EXPECT(before);
+			_("\t// <BODY>\n");
+			ex(p->opr.op[1]);
+			_("\t// </BODY>\n");
+			PUSHCOUNTER_EXPECT(before);
 
-				printf("\tjmp\tL%03d\n", lbl1);
-				printf("L%03d:\n", lbl2);
-				break;
+			printf("\tjmp\tL%03d\n", lbl1);
+			printf("L%03d:\n", lbl2);
+			break;
 		case IF:
 			_("\t\t\t\t// typeOpr == IF\n");
-			_("\t\t\t\t// <OP0>\n");
+			_("\t// <CONDITION>\n");
 			ex(p->opr.op[0]);
-			_("\t\t\t\t// </OP0>\n");
+			_("\t// </CONDITION>\n");
 
 			if (p->opr.nops > 2) {
 				/* if else */
@@ -76,18 +101,18 @@ int ex(nodeType *p) {
 				printf("\tjz\tL%03d\n", lbl1 = lbl++);
 
 				int before = pushCounter;
-				_("\t\t\t\t// <OP1>\n");
+				_("\t// <BODY>\n");
 				ex(p->opr.op[1]);
-				_("\t\t\t\t// </OP1>\n");
+				_("\t// </BODY>\n");
 				PUSHCOUNTER_EXPECT(before);
 
 				printf("\tjmp\tL%03d\n", lbl2 = lbl++);
 				printf("L%03d:\n", lbl1);
 
 				before = pushCounter;
-				_("\t\t\t\t// <OP2>\n");
+				_("\t// <ELSE-BODY>\n");
 					ex(p->opr.op[2]);
-					_("\t\t\t\t// </OP2>\n");
+					_("\t// </ELSE-BODY>\n");
 					PUSHCOUNTER_EXPECT(before);
 
 					printf("L%03d:\n", lbl2);
@@ -100,9 +125,9 @@ int ex(nodeType *p) {
 				printf("\tjz\tL%03d\n", lbl1 = lbl++);
 
 				int before = pushCounter;
-				_("\t\t\t\t// <OP1>\n");
+				_("\t// <BODY>\n");
 				ex(p->opr.op[1]);
-				_("\t\t\t\t// </OP1>\n");
+				_("\t// </BODY>\n");
 				PUSHCOUNTER_EXPECT(before);
 
 				printf("L%03d:\n", lbl1);
@@ -110,9 +135,9 @@ int ex(nodeType *p) {
 			break;
 		case PRINT:
 			_("\t\t\t\t// typeOpr == PRINT\n");
-			_("\t\t\t\t// <OP0>\n");
+			_("\t// <EXPRESSION>\n");
 			ex(p->opr.op[0]);
-			_("\t\t\t\t// </OP0>\n");
+			_("\t// </EXPRESSION>\n");
 
 			printf("\tpopq\t%rdi\n");
 			PUSHCOUNTER_SUB();
@@ -120,18 +145,18 @@ int ex(nodeType *p) {
 			break;
 		case '=':
 			_("\t\t\t\t// typeOpr == EQUALS\n");
-			_("\t\t\t\t// <OP1>\n");
+			_("\t// <EXPRESSION>\n");
 			ex(p->opr.op[1]);
-			_("\t\t\t\t// </OP1>\n");
+			_("\t// </EXPRESSION>\n");
 
-			printf("\tpopq\t%c\n", p->opr.op[0]->id.i + 'a');
+			printf("\tpopq\t%c\n", p->opr.op[0]->id.i + 'A');
 			PUSHCOUNTER_SUB();
 			break;
 		case UMINUS:
 			_("\t\t\t\t// typeOpr == UMINUS\n");
-			_("\t\t\t\t// <OP0>\n");
+			_("\t// <EXPRESSION>\n");
 			ex(p->opr.op[0]);
-			_("\t\t\t\t// </OP0>\n");
+			_("\t// </EXPRESSION>\n");
 
 			printf("\tpop\t%rax\n");
 			PUSHCOUNTER_SUB();
@@ -141,9 +166,9 @@ int ex(nodeType *p) {
 			break;
 		case FACT:
 			_("\t\t\t\t// typeOpr == FACT\n");
-			_("\t\t\t\t// <OP0>\n");
+			_("\t// <EXPRESSION>\n");
 			ex(p->opr.op[0]);
-			_("\t\t\t\t// </OP0>\n");
+			_("\t// </EXPRESSION>\n");
 
 			printf("\tpop\t%rdi\n");
 			PUSHCOUNTER_SUB();
@@ -153,9 +178,9 @@ int ex(nodeType *p) {
 			break;
 		case LNTWO:
 			_("\t\t\t\t// typeOpr == LNTWO\n");
-			_("\t\t\t\t// <OP0>\n");
+			_("\t// <EXPRESSION>\n");
 			ex(p->opr.op[0]);
-			_("\t\t\t\t// </OP0>\n");
+			_("\t// </EXPRESSION>\n");
 
 			printf("\tpop\t%rdi\n");
 			PUSHCOUNTER_SUB();
@@ -164,13 +189,36 @@ int ex(nodeType *p) {
 			PUSHCOUNTER_ADD();
 			break;
 		default:
-			_("\t\t\t\t// typeOpr == <DEFAULT>\n");
-			_("\t\t\t\t// <OP0>\n");
+			#ifndef NDEBUG
+			{
+				_("\t\t\t\t// typeOpr == <DEFAULT> (");
+				switch (p->opr.oper) {
+				case GCD: _("GCD"); break;
+				case '+': _("+"); break;
+				case '-': _("-"); break;
+				case '*': _("*"); break;
+				case '/': _("/"); break;
+				case '<': _("<"); break;
+				case '>': _(">"); break;
+				case GE: _("GE"); break;
+				case LE: _("LE"); break;
+				case NE: _("NE"); break;
+				case EQ: _("EQ"); break;
+				default: _("%c|%d", (char)p->opr.oper, p->opr.oper); break;	
+				}
+				_(")\n");
+			}
+			#endif
+			_("\t// <LEFT>\n");
 			ex(p->opr.op[0]);
-			_("\t\t\t\t// </OP0>\n");
-			_("\t\t\t\t// <OP1>\n");
+			_("\t// </LEFT>\n");
+			_("\t// <RIGHT>\n");
 			ex(p->opr.op[1]);
-			_("\t\t\t\t// </OP1>\n");
+			_("\t// </RIGHT>\n");
+
+			// Don't try and get any values from a combined expression
+			if (p->opr.oper == ';')
+				break;
 
 			printf("\tpopq\t%rdi\n");
 			PUSHCOUNTER_SUB();
@@ -212,21 +260,22 @@ int ex(nodeType *p) {
 				PUSHCOUNTER_ADD();
 				break;
 			case '/':
-				printf("\tdiv\t%rdi\n");
+				printf("\tcqo\n");
+				printf("\tidiv\t%rdi\n");
 				printf("\tpushq\t%rax\n");
 				PUSHCOUNTER_ADD();
 				break;
 			case '<':
-				CMP("jb");
+				CMP("jl");
 				break;
 			case '>':
-				CMP("ja");
+				CMP("jg");
 				break;
 			case GE:
-				CMP("jae");
+				CMP("jge");
 				break;
 			case LE:
-				CMP("jbe");
+				CMP("jle");
 				break;
 			case NE:
 				CMP("jne");
@@ -234,8 +283,13 @@ int ex(nodeType *p) {
 			case EQ:
 				CMP("je");
 				break;
+			default:
+				_e("Unknown operator: '%c' / %d\n", (char)p->opr.oper, p->opr.oper);
 			}
 		}
 	}
+
+	if (rootBlock)
+		inBlock = 0;
 	return 0;
 }

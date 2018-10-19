@@ -1,6 +1,8 @@
 *~
 \#*\#
 *\#
+.*\#*
 bin/
 lib/
 obj/
+results/

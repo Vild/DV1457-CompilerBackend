@@ -5,6 +5,8 @@
 void yyerror(char *);
 %}
 
+%option yylineno
+
 %%
 
 [a-z]       { 
@@ -39,4 +41,9 @@ void yyerror(char *);
 %%
 int yywrap(void) {
     return 1;
+}
+
+void yyerror(char* str) {
+	fprintf(stderr, "Error | Line: %d\n%s\n", yylineno, str);
+	exit(-1);
 }

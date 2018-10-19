@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "calc3.h"
+#include "y.tab.h"
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
@@ -21,6 +22,8 @@ int sym[26];                    /* symbol table */
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
 };
+
+%locations
 
 %token <iValue> INTEGER
 %token <sIndex> VARIABLE
@@ -152,10 +155,6 @@ void freeNode(nodeType *p) {
             freeNode(p->opr.op[i]);
     }
     free (p);
-}
-
-void yyerror(char *s) {
-    fprintf(stdout, "%s\n", s);
 }
 
 int main(void) {

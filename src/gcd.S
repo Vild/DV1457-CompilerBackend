@@ -3,11 +3,24 @@
 
 .global gcd
 .type gcd, %function
-gcd: # %rdi = factor
+gcd: # %rdi = a, %rsi = b
 	push %rbp
 	mov %rsp, %rbp
 
-	xor %rax, %rax
+.loopStart:
+	cmp %rsi, %rdi
+	je .loopEnd
+	jle .a_lessEq_b
+
+	sub %rdi, %rsi
+	jmp .loopStart
+
+.a_lessEq_b:
+	sub %rsi, %rdi
+	jmp .loopStart
+
+.loopEnd:
+	mov %rdi, %rax
 
 	pop %rbp
 	retq
