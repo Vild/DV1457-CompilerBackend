@@ -10,7 +10,7 @@ fact: # %rdi = factor
 	mov $1, %rax
 	mov $1, %rsi
 1:
-	mul %rsi
+	imul %rsi
 	inc %rsi
 	cmp %rdi, %rsi
 	jna 1b
