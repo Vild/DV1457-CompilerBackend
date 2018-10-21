@@ -29,8 +29,16 @@ static int64_t pop();
 static int64_t stackBuffer[0x1000];
 static int stackIndex = -1;
 
-void __attribute__((naked, noreturn)) _start(void) {
-	asm("mov \$0, %rbp");
+#if __GNUC__ >= 8
+#define NAKED_NORETURN __attribute__((naked, noreturn))
+#define SET_RBP() asm("mov \$0, %rbp")
+#else
+#define NAKED_NORETURN
+#define SET_RBP()
+#endif
+
+void NAKED_NORETURN _start(void) {
+	SET_RBP();
 	int result = main();
 	asm("syscall" :	: "a"(__NR_exit), "D"(result));
 }
