@@ -1,6 +1,16 @@
 .code64
 .text
 
+/*
+ * Basicall this:
+ * while(a!=n) {
+ *  if(a > b)
+ *    a -= b;
+ *  else
+ *    b -= a;
+ * }
+	*/
+
 .global gcd
 .type gcd, %function
 gcd: # %rdi = a, %rsi = b

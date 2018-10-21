@@ -7,7 +7,9 @@ fact: # %rdi = factor
 	push %rbp
 	mov %rsp, %rbp
 
+	// %rax = output
 	mov $1, %rax
+	// %rsi = The value output will be multiplied with.
 	mov $1, %rsi
 1:
 	imul %rsi
