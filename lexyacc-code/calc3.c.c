@@ -5,7 +5,8 @@
 static int indent = 1;
 
 static void printIndent() {
-	for(int i = 0; i < indent; i++)
+	int i;
+	for(i = 0; i < indent; i++)
 		printf("\t");
 }
 

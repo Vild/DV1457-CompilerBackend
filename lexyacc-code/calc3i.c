@@ -53,9 +53,9 @@ int ex(nodeType *p) {
 			ex(p->opr.op[0]);
 			PUSHCOUNTER_EXPECT(before + 1);
 
-			printf("\tpop\t%rax\n");
+			printf("\tpop\t%%rax\n");
 			PUSHCOUNTER_SUB();
-			printf("\ttest\t%rax,%rax\n");
+			printf("\ttest\t%%rax,%%rax\n");
 			printf("\tjz\tL%03d\n", lbl2 = lbl++);
 
 			/* Don't allow the loop body to have a stray value on the stack */
@@ -78,9 +78,9 @@ int ex(nodeType *p) {
 			PUSHCOUNTER_EXPECT(before + 1);
 
 			if (p->opr.nops > 2) { /* if else */
-				printf("\tpop\t%rax\n");
+				printf("\tpop\t%%rax\n");
 				PUSHCOUNTER_SUB();
-				printf("\ttest\t%rax,%rax\n");
+				printf("\ttest\t%%rax,%%rax\n");
 				printf("\tjz\tL%03d\n", lbl1 = lbl++);
 
 				/* Don't allow the "if" body to have a stray value on the stack */
@@ -98,9 +98,9 @@ int ex(nodeType *p) {
 
 				printf("L%03d:\n", lbl2);
 			} else { /* if */
-				printf("\tpop\t%rax\n");
+				printf("\tpop\t%%rax\n");
 				PUSHCOUNTER_SUB();
-				printf("\ttest\t%rax,%rax\n");
+				printf("\ttest\t%%rax,%%rax\n");
 				printf("\tjz\tL%03d\n", lbl1 = lbl++);
 
 				/* Don't allow the "if" body to have a stray value on the stack */
@@ -117,7 +117,7 @@ int ex(nodeType *p) {
 			ex(p->opr.op[0]);
 			PUSHCOUNTER_EXPECT(before + 1);
 
-			printf("\tpopq\t%rdi\n");
+			printf("\tpopq\t%%rdi\n");
 			PUSHCOUNTER_SUB();
 			printf("\tcall\tprint\n");
 			break;
@@ -136,10 +136,10 @@ int ex(nodeType *p) {
 			ex(p->opr.op[0]);
 			PUSHCOUNTER_EXPECT(before + 1);
 
-			printf("\tpop\t%rax\n");
+			printf("\tpop\t%%rax\n");
 			PUSHCOUNTER_SUB();
-			printf("\tneg\t%rax\n");
-			printf("\tpush\t%rax\n");
+			printf("\tneg\t%%rax\n");
+			printf("\tpush\t%%rax\n");
 			PUSHCOUNTER_ADD();
 			break;
 		case FACT:
@@ -148,10 +148,10 @@ int ex(nodeType *p) {
 			ex(p->opr.op[0]);
 			PUSHCOUNTER_EXPECT(before + 1);
 
-			printf("\tpop\t%rdi\n");
+			printf("\tpop\t%%rdi\n");
 			PUSHCOUNTER_SUB();
 			printf("\tcall\tfact\n");
-			printf("\tpush\t%rax\n");
+			printf("\tpush\t%%rax\n");
 			PUSHCOUNTER_ADD();
 			break;
 		case LNTWO:
@@ -160,10 +160,10 @@ int ex(nodeType *p) {
 			ex(p->opr.op[0]);
 			PUSHCOUNTER_EXPECT(before + 1);
 
-			printf("\tpop\t%rdi\n");
+			printf("\tpop\t%%rdi\n");
 			PUSHCOUNTER_SUB();
 			printf("\tcall\tlntwo\n");
-			printf("\tpush\t%rax\n");
+			printf("\tpush\t%%rax\n");
 			PUSHCOUNTER_ADD();
 			break;
 		default:
@@ -186,9 +186,9 @@ int ex(nodeType *p) {
 			ex(p->opr.op[1]);
 			PUSHCOUNTER_EXPECT(before + 2);
 
-			printf("\tpopq\t%rdi\n");
+			printf("\tpopq\t%%rdi\n");
 			PUSHCOUNTER_SUB();
-			printf("\tpopq\t%rax\n");
+			printf("\tpopq\t%%rax\n");
 			PUSHCOUNTER_SUB();
 
 			/*
@@ -198,7 +198,7 @@ int ex(nodeType *p) {
 			 * The /if/ or /while/ statement expects to be able to pop a value.
 			 */
 #define CMP(function) do {															\
-				printf("\tcmp %rdi, %rax\n");										\
+				printf("\tcmp %%rdi, %%rax\n");									\
 				printf("\t" function " L%03d\n", lbl1 = lbl++);	\
 				printf("\tpushq\t$0\n");												\
 				printf("\tjmp\tL%03d\n", lbl2 = lbl++);					\
@@ -210,32 +210,32 @@ int ex(nodeType *p) {
 
 			switch(p->opr.oper) {
 			case GCD:
-				printf("\tmov\t%rdi, %rsi\n");
-				printf("\tmov\t%rax, %rdi\n");
+				printf("\tmov\t%%rdi, %%rsi\n");
+				printf("\tmov\t%%rax, %%rdi\n");
 				printf("\tcall\tgcd\n");
-				printf("\tpush\t%rax\n");
+				printf("\tpush\t%%rax\n");
 				PUSHCOUNTER_ADD();
 				break;
 			case '+':
-				printf("\tadd\t%rdi, %rax\n");
-				printf("\tpushq\t%rax\n");
+				printf("\tadd\t%%rdi, %%rax\n");
+				printf("\tpushq\t%%rax\n");
 				PUSHCOUNTER_ADD();
 				break;
 			case '-':
-				printf("\tsub\t%rdi, %rax\n");
-				printf("\tpushq\t%rax\n");
+				printf("\tsub\t%%rdi, %%rax\n");
+				printf("\tpushq\t%%rax\n");
 				PUSHCOUNTER_ADD();
 				break;
 			case '*':
-				printf("\timul\t%rdi\n");
-				printf("\tpushq\t%rax\n");
+				printf("\timul\t%%rdi\n");
+				printf("\tpushq\t%%rax\n");
 				PUSHCOUNTER_ADD();
 				break;
 			case '/':
 				// 'cqo' will sign-extend %rax into %rdx, a requirement for idiv.
 				printf("\tcqo\n");
-				printf("\tidiv\t%rdi\n");
-				printf("\tpushq\t%rax\n");
+				printf("\tidiv\t%%rdi\n");
+				printf("\tpushq\t%%rax\n");
 				PUSHCOUNTER_ADD();
 				break;
 			case '<':
