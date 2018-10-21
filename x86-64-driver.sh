@@ -129,7 +129,7 @@ print_buffer:
 	.space 32 // This will be more than enought to store a UINT64_MAX number.
 print_buffer_end:
 EOF
-	for c in {A..Z}; do
+	for c in {a..z}; do
 		echo ".global $c"
 		echo "$c: .quad 0"
 	done

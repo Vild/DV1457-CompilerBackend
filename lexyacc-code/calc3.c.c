@@ -29,7 +29,7 @@ int ex(nodeType *p) {
 		printf("%d", p->con.value);
 		break;
 	case typeId:
-		printf("%c", p->id.i + 'A');
+		printf("%c", p->id.i + 'a');
 		break;
 	case typeOpr:
 		switch(p->opr.oper) {
@@ -87,7 +87,7 @@ int ex(nodeType *p) {
 			printf(")");
 			break;
 		case '=':
-			printf("%c = ", p->opr.op[0]->id.i + 'A');
+			printf("%c = ", p->opr.op[0]->id.i + 'a');
 			ex(p->opr.op[1]);
 			break;
 		case UMINUS:

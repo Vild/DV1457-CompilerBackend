@@ -32,8 +32,8 @@ void __attribute__((naked, noreturn)) _start(void) {
 }
 
 EOF
-	echo -n "int64_t A = 0"
-	for c in {B..Z}; do
+	echo -n "int64_t a = 0"
+	for c in {b..z}; do
 		echo -n ", $c = 0"
 	done
 	echo ";"

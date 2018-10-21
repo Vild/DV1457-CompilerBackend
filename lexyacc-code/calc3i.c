@@ -36,7 +36,7 @@ int ex(nodeType *p) {
 		PUSHCOUNTER_ADD();
 		break;
 	case typeId:
-		printf("\tpushq\t%c\n", p->id.i + 'A');
+		printf("\tpushq\t%c\n", p->id.i + 'a');
 		PUSHCOUNTER_ADD();
 		break;
 	case typeOpr:
@@ -127,7 +127,7 @@ int ex(nodeType *p) {
 			ex(p->opr.op[1]);
 			PUSHCOUNTER_EXPECT(before + 1);
 
-			printf("\tpopq\t%c\n", p->opr.op[0]->id.i + 'A');
+			printf("\tpopq\t%c\n", p->opr.op[0]->id.i + 'a');
 			PUSHCOUNTER_SUB();
 			break;
 		case UMINUS:
