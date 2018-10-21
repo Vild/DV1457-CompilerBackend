@@ -6,3 +6,12 @@ bin/
 lib/
 obj/
 results/
+
+# Test outputs
+/a
+/base
+/fact
+/gcd
+/harmonic
+/looptest
+/pi

@@ -16,7 +16,7 @@ SRC_FILE=""
 BIN_FILE=""
 
 # test files
-LOOP_TEST="looptest"		# grade D
+TEST_FILE="looptest"		# grade D
 
 
 # run_test <driver> <file ending> <test path> <result path> <test>
@@ -38,9 +38,13 @@ run_test()
 	fi
 }
 
-if [ $# -ne 3 ]; then
-	echo "usage: $0 [a|c] <path> <run-name>"
+if [ $# -lt 3 ]; then
+	echo "usage: $0 [a|c] <path> <run-name> (test-program)"
 	exit 1
+fi
+
+if [ $# -eq 4 ]; then
+		TEST_FILE="$4"
 fi
 
 cd "$2"
@@ -59,6 +63,6 @@ else
 fi
 
 rm -rf "$RESULT_PATH$3" || true
-mkdir "$RESULT_PATH$3"
+mkdir -p "$RESULT_PATH$3"
 
-run_test $DRIVER $FILE_ENDING "$TEST_PATH" "$RESULT_PATH/$3" $LOOP_TEST
+run_test $DRIVER $FILE_ENDING "$TEST_PATH" "$RESULT_PATH/$3" $TEST_FILE

@@ -5,15 +5,15 @@
 
 static int lbl;
 
-#define NDEBUGd
+#define NDEBUG
 
 #ifndef NDEBUG
 #define _(fmt, ...) do { fflush(stdout); fprintf(stderr, "\x1b[1;33m" fmt "\x1b[0m", ##__VA_ARGS__); } while (0)
+#define _e(fmt, ...) do { fflush(stdout); fprintf(stderr, "\x1b[1;31m" fmt "\x1b[0m", ##__VA_ARGS__); } while (0)
 #else
 #define _(...)
+#define _e(...)
 #endif
-#define _e(fmt, ...) do { fflush(stdout); fprintf(stderr, "\x1b[1;31m" fmt "\x1b[0m", ##__VA_ARGS__); } while (0)
-
 
 static int pushCounter = 0;
 

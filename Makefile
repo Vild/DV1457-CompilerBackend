@@ -13,7 +13,7 @@ BIN_LIB=lib/
 
 COMMON_SRC = $(OBJ)y.tab.o $(OBJ)lex.yy.o
 
-TARGETS := $(BIN)calc3a $(BIN)calc3b $(BIN)calc3i $(BIN)calc3g $(BIN_LIB)libmath.a $(BIN)libmath-implementation-test
+TARGETS := $(BIN)calc3a $(BIN)calc3b $(BIN)calc3i $(BIN)calc3.c $(BIN)calc3g $(BIN_LIB)libmath.a $(BIN)libmath-implementation-test
 
 # Compiler stuff
 CC ?= gcc
@@ -69,9 +69,31 @@ all: init $(TARGETS)
 init:
 	@$(call INFO,"::","Building $(PROJECT)...");
 
-test:
-	./check.sh a . a
-	@#./check.sh c . c
+testprogram=looptest
+test: $(foreach testProgram,$(shell find tests -iname "*.calc"), $(testProgram:.calc=))
+
+
+tests/%:  all tests/%.calc
+	@$(call INFO,"::","Building $(patsubst tests/%,%.calc,$@)...");
+	@$(call BEG,$(BLUE),"  -\>","Running x86-64-driver.sh...");
+	@./check.sh a . x86-64_$(patsubst tests/%,%,$@) $(patsubst tests/%,%,$@) $(ERRORS);
+	@$(call END,$(BLUE),"  -\>","Running x86-64-driver.sh...");
+	@$(call BEG,$(BLUE),"  ---\>","Running generated executable...");
+	@./$(patsubst tests/%,%,$@) > /tmp/.$(patsubst tests/%,%,$@)-a && rm $(patsubst tests/%,%,$@) $(ERRORS);
+	@$(call END,$(BLUE),"  ---\>","Running generated executable...");
+	@$(call BEG,$(BLUE),"  -\>","Running c-driver.sh...");
+	@./check.sh c . c_$(patsubst tests/%,%,$@) $(patsubst tests/%,%,$@) $(ERRORS);
+	@$(call END,$(BLUE),"  -\>","Running c-driver.sh...");
+	@$(call BEG,$(BLUE),"  ---\>","Running generated executable...");
+	@./$(patsubst tests/%,%,$@) > /tmp/.$(patsubst tests/%,%,$@)-c && rm $(patsubst tests/%,%,$@) $(ERRORS);
+	@$(call END,$(BLUE),"  ---\>","Running generated executable...");
+	@$(call BEG,$(BLUE),"  -\>","Checking differance...");
+	@diff /tmp/.$(patsubst tests/%,%,$@)-{a,c} $(ERRORSS);
+	@$(call END,$(BLUE),"  -\>","Checking differance...");
+	@$(call BEG,$(BLUE),"  -\>","Cleanup...");
+	@diff /tmp/.$(patsubst tests/%,%,$@)-{a,c} $(ERRORSS);
+	@$(call END,$(BLUE),"  -\>","Cleanup...");
+	@$(RM) /tmp/.$(patsubst tests/%,%,$@)-{a,c}
 
 test-lib: $(BIN)libmath-implementation-test
 	@$(call INFO,"::","Testing the libmath.a implementation...");

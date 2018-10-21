@@ -124,11 +124,13 @@ print: // %rdi number to print
 
 .bss
 
+.global print_buffer
 print_buffer:
 	.space 32 // This will be more than enought to store a UINT64_MAX number.
 print_buffer_end:
 EOF
 	for c in {A..Z}; do
+		echo ".global $c"
 		echo "$c: .quad 0"
 	done
 }
@@ -137,7 +139,7 @@ prologue > $TMPFILE
 compile $1 >> $TMPFILE
 epilogue >> $TMPFILE
 
-cat $TMPFILE
+# cat $TMPFILE
 
 gcc -o $OUTPUT -static -nostdlib $TMPFILE lib/libmath.a
 rm $TMPFILE
