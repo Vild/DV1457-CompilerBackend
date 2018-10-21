@@ -20,8 +20,8 @@ CC ?= gcc
 FLEX ?= flex
 BISON ?= bison
 AR ?= ar
-CFLAGS := -I$(SRC) -I$(OBJ)
-CFLAGS_LIB := -nostdlib
+CFLAGS := -I$(SRC) -I$(OBJ) -m64
+CFLAGS_LIB := -nostdlib -m64 -std=gnu99
 LFLAGS :=
 ARFLAGS := rcs
 
@@ -73,7 +73,7 @@ testprogram=looptest
 test: $(foreach testProgram,$(shell find tests -iname "*.calc"), $(testProgram:.calc=))
 
 
-tests/%:  all tests/%.calc
+tests/%: all test-lib tests/%.calc
 	@$(call INFO,"::","Building $(patsubst tests/%,%.calc,$@)...");
 	@$(call BEG,$(BLUE),"  -\>","Running x86-64-driver.sh...");
 	@./check.sh a . x86-64_$(patsubst tests/%,%,$@) $(patsubst tests/%,%,$@) $(ERRORS);
