@@ -24,6 +24,10 @@ extern int64_t lntwo(int64_t a);
 
 int main(void);
 static void print(int64_t number);
+static void push(int64_t number);
+static int64_t pop();
+static int64_t stackBuffer[0x1000];
+static int stackIndex = -1;
 
 void __attribute__((naked, noreturn)) _start(void) {
 	asm("mov \$0, %rbp");
@@ -82,6 +86,20 @@ static void print(int64_t number) {
 
 	asm("syscall" :	: "a"(__NR_write), "D"(1), "S"(str), "d"(length));
 }
+
+static void push(int64_t number) {
+	stackIndex++;
+	if (stackIndex == sizeof(stackBuffer)/sizeof(stackBuffer[0]))
+		asm("syscall" :	: "a"(__NR_exit), "D"(128));
+	stackBuffer[stackIndex] = number;
+}
+
+static int64_t pop() {
+	if (stackIndex == -1)
+		asm("syscall" :	: "a"(__NR_exit), "D"(255));
+	return stackBuffer[stackIndex--];
+}
+
 EOF
 }
 

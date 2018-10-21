@@ -6,6 +6,7 @@ bin/
 lib/
 obj/
 results/
+.gdb_history
 
 # Test outputs
 /a
@@ -20,4 +21,4 @@ results/
 /looptest
 /looptest.[cS]
 /pi
-/pi.[cS]
+d/pi.[cS]
