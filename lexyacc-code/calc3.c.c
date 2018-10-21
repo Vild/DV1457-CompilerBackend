@@ -6,18 +6,19 @@ static int lbl;
 static int rootExpression;
 static int indent = 1;
 
-void printIndent() {
+static void printIndent() {
 	for(int i = 0; i < indent; i++)
 		printf("\t");
 }
 
 int ex(nodeType *p) {
+	/* Does this expression need to end with a semicolon */
 	int needSemicolon = 1;
 
 	if (!p)
 		return 0;
 
-	//intf("/* rootExpression = %d, indent = %d*/", rootExpression, indent);
+	/* These are used to correctly output '\n' and when to indent the expressions. */
 	if (!rootExpression)
 		printIndent();
 
@@ -37,6 +38,7 @@ int ex(nodeType *p) {
 			ex(p->opr.op[0]);
 			printf(") {\n");
 			{
+				/* Add one more level of indentation in the body */
 				int oldRoot = rootExpression;
 				rootExpression = 0;
 				indent++;
@@ -53,6 +55,7 @@ int ex(nodeType *p) {
 			ex(p->opr.op[0]);
 			printf(") {\n");
 			{
+				/* Add one more level of indentation in the body */
 				int oldRoot = rootExpression;
 				rootExpression = 0;
 				indent++;
@@ -65,6 +68,7 @@ int ex(nodeType *p) {
 			if (p->opr.nops > 2) {
 				printf(" else {");
 				{
+					/* Add one more level of indentation in the body */
 					int oldRoot = rootExpression;
 					rootExpression = 0;
 					indent++;
@@ -135,6 +139,7 @@ int ex(nodeType *p) {
 			break;
 		}
 	}
+
 	if (--rootExpression == 0) {
 		if (needSemicolon)
 			printf(";");
