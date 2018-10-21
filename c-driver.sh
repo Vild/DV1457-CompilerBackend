@@ -9,7 +9,7 @@ fi
 
 OUTPUT="${1/.calc/}"
 OUTPUT=$(basename $OUTPUT)
-TMPFILE="/tmp/calc3-$RANDOM.c"
+OUTPUT_SOURCE="$OUTPUT.c"
 
 function prologue() {
 	cat <<EOF
@@ -85,11 +85,10 @@ static void print(int64_t number) {
 EOF
 }
 
-prologue > $TMPFILE
-compile $1 >> $TMPFILE
-epilogue >> $TMPFILE
+prologue > $OUTPUT_SOURCE
+compile $1 >> $OUTPUT_SOURCE
+epilogue >> $OUTPUT_SOURCE
 
-# cat $TMPFILE
+# cat $OUTPUT_SOURCE
 
-gcc -o $OUTPUT -static -nostdlib -fno-stack-protector $TMPFILE lib/libmath.a
-rm $TMPFILE
+gcc -o $OUTPUT -static -nostdlib -fno-stack-protector $OUTPUT_SOURCE lib/libmath.a

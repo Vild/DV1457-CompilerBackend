@@ -9,7 +9,8 @@ fi
 
 OUTPUT="${1/.calc/}"
 OUTPUT=$(basename $OUTPUT)
-TMPFILE="/tmp/calc3-$RANDOM.S"
+# NOTE: This will be .S as it needs preprocessing for the syscall number
+OUTPUT_SOURCE="$OUTPUT.S"
 
 function prologue() {
 	cat <<EOF
@@ -135,11 +136,10 @@ EOF
 	done
 }
 
-prologue > $TMPFILE
-compile $1 >> $TMPFILE
-epilogue >> $TMPFILE
+prologue > $OUTPUT_SOURCE
+compile $1 >> $OUTPUT_SOURCE
+epilogue >> $OUTPUT_SOURCE
 
-# cat $TMPFILE
+# cat $OUTPUT_SOURCE
 
-gcc -o $OUTPUT -static -nostdlib $TMPFILE lib/libmath.a
-rm $TMPFILE
+gcc -o $OUTPUT -static -nostdlib $OUTPUT_SOURCE lib/libmath.a

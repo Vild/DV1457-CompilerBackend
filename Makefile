@@ -79,21 +79,20 @@ tests/%:  all tests/%.calc
 	@./check.sh a . x86-64_$(patsubst tests/%,%,$@) $(patsubst tests/%,%,$@) $(ERRORS);
 	@$(call END,$(BLUE),"  -\>","Running x86-64-driver.sh...");
 	@$(call BEG,$(BLUE),"  ---\>","Running generated executable...");
-	@./$(patsubst tests/%,%,$@) > /tmp/.$(patsubst tests/%,%,$@)-a && rm $(patsubst tests/%,%,$@) $(ERRORS);
+	@./$(patsubst tests/%,%,$@) > /tmp/.$(patsubst tests/%,%,$@)-a && rm $(patsubst tests/%,%,$@) $(patsubst tests/%,%,$@).S $(ERRORS);
 	@$(call END,$(BLUE),"  ---\>","Running generated executable...");
 	@$(call BEG,$(BLUE),"  -\>","Running c-driver.sh...");
 	@./check.sh c . c_$(patsubst tests/%,%,$@) $(patsubst tests/%,%,$@) $(ERRORS);
 	@$(call END,$(BLUE),"  -\>","Running c-driver.sh...");
 	@$(call BEG,$(BLUE),"  ---\>","Running generated executable...");
-	@./$(patsubst tests/%,%,$@) > /tmp/.$(patsubst tests/%,%,$@)-c && rm $(patsubst tests/%,%,$@) $(ERRORS);
+	@./$(patsubst tests/%,%,$@) > /tmp/.$(patsubst tests/%,%,$@)-c && rm $(patsubst tests/%,%,$@) $(patsubst tests/%,%,$@).c $(ERRORS);
 	@$(call END,$(BLUE),"  ---\>","Running generated executable...");
 	@$(call BEG,$(BLUE),"  -\>","Checking differance...");
 	@diff /tmp/.$(patsubst tests/%,%,$@)-{a,c} $(ERRORSS);
 	@$(call END,$(BLUE),"  -\>","Checking differance...");
 	@$(call BEG,$(BLUE),"  -\>","Cleanup...");
-	@diff /tmp/.$(patsubst tests/%,%,$@)-{a,c} $(ERRORSS);
-	@$(call END,$(BLUE),"  -\>","Cleanup...");
 	@$(RM) /tmp/.$(patsubst tests/%,%,$@)-{a,c}
+	@$(call END,$(BLUE),"  -\>","Cleanup...");
 
 test-lib: $(BIN)libmath-implementation-test
 	@$(call INFO,"::","Testing the libmath.a implementation...");

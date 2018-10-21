@@ -9,9 +9,15 @@ results/
 
 # Test outputs
 /a
-/base
+/a.[cS]
+/base.[cS]
 /fact
+/fact.[cS]
 /gcd
+/gcd.[cS]
 /harmonic
+/harmonic.[cS]
 /looptest
+/looptest.[cS]
 /pi
+/pi.[cS]
