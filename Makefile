@@ -20,7 +20,7 @@ CC ?= gcc
 FLEX ?= flex
 BISON ?= bison
 AR ?= ar
-CFLAGS := -I$(SRC) -I$(OBJ) -m64
+CFLAGS := -I$(SRC) -I$(OBJ) -m64 -std=gnu99
 CFLAGS_LIB := -nostdlib -m64 -std=gnu99
 LFLAGS :=
 ARFLAGS := rcs
